@@ -114,7 +114,7 @@ In this section, we will create a [Regional TCP Network Load Balancer](https://c
 Enter into the tutorial directory.
 
 ```bash
-cd regional-tcp-lb
+cd example-lb
 ```
 
 Initialize `Terraform`:
@@ -233,7 +233,7 @@ This example creates three instance groups. The first group is in us-central1-b 
 Go into the `regional-internal-lb` directory
 
 ```bash
-cd regional-internal-lb
+cd example-lb-internal
 ```
 
 ### Run Terraform
@@ -393,7 +393,7 @@ This example creates an HTTPS load balancer to forward traffic to a custom URL m
 Go into the `https-content-lb` directory
 
 ```bash
-cd https-content-lb
+cd example-lb-https-content
 ```
 
 ### Run Terraform
