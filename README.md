@@ -660,3 +660,14 @@ Example Output:
 Destroy complete! Resources: 48 destroyed.
 
 ```
+
+
+
+#
+
+References: 
+- https://cloud.google.com/community/tutorials/modular-load-balancing-with-terraform#global_http_load_balancer
+- https://www.qwiklabs.com/focuses/1207?parent=catalog
+- https://www.qwiklabs.com/focuses/1206?parent=catalog
+- https://github.com/GoogleCloudPlatform
+- https://www.terraform.io/docs/providers/google/index.html
