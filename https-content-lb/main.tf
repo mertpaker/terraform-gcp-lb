@@ -5,7 +5,7 @@ provider "google" {
 
 
 module "gce-lb-https" {
-  source            = "../modules/general-lb"
+  source            = "..\/modules\/common-lb"
   name              = "${var.network_name}"
   target_tags       = ["${module.mig1.target_tags}", "${module.mig2.target_tags}", "${module.mig3.target_tags}"]
   firewall_networks = ["${google_compute_network.default.name}"]
