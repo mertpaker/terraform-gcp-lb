@@ -20,7 +20,7 @@ provider "google" {
 }
 
 module "gce-lb-fr" {
-  source      = "../modules/common-lb-basic"
+  source      = "../modules/terraform-google-lb"
   region       = "${var.region}"
   name         = "${var.network_name}"
   service_port = "${module.mig1.service_port}"
