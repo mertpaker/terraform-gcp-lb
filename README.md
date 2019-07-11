@@ -13,8 +13,8 @@ https://cloud.google.com/load-balancing/docs/
 * Learn about the load balancing modules for Terraform.
 * [Create a Regional Network TCP load balancer.](#regional-network-load-balancer)
 * Create a Regional Internal TCP load balancer.
-* Create a global HTTP load balancer with Kubernetes Engine.
-* [Create a global HTTPS content-based load balancer.](#global-https-content-based-load-balancer)
+* Create a Global HTTP Load Balancer with Kubernetes Engine.
+* [Create a Global Content-based HTTP Load Balancer.](#global-https-content-based-load-balancer)
 
 
 
@@ -79,16 +79,16 @@ gcloud auth application-default login
 ```
 
 
-#### Clone the tutorial repository
+#### Set up the environment
 
 In terminal, clone the terraform-gcp-lb repository:
 ```bash
 git clone https://github.com/mertpaker/terraform-gcp-lb.git
 ```
 
-Go into the `https-content-lb` directory
+Save the GCP Project ID in an environmental variable:
 ```bash
-cd https-content-lb
+export GOOGLE_PROJECT=$(gcloud config get-value project)
 ```
 
 
@@ -117,7 +117,7 @@ This example creates an HTTPS load balancer to forward traffic to a custom URL m
 
 **Figure 1.** `global-https-content-lb` architecture diagram
 
-### Set up the environment
+#### Set up the environment
 
 Go into the `https-content-lb` directory
 
@@ -125,8 +125,210 @@ Go into the `https-content-lb` directory
 cd https-content-lb
 ```
 
+### Run Terraform
+The terraform init command is used to initialize a working directory containing Terraform configuration files. This command performs several different initialization steps in order to prepare a working directory for use. This command is always safe to run multiple times, to bring the working directory up to date with changes in the configuration.
+
+Run the command:
+```bash
+terraform init
+```
+
+Example Output:
+```
+Initializing modules...
+- module.gce-lb-https
+  Getting source "../modules/common-lb"
+- module.mig1
+  Found version 1.1.14 of GoogleCloudPlatform/managed-instance-group/google on registry.terraform.io
+  Getting source "GoogleCloudPlatform/managed-instance-group/google"
+- module.mig2
+- module.mig3
+
+Initializing provider plugins...
+- Checking for available provider plugins on https://releases.hashicorp.com...
+- Downloading plugin for provider "google" (1.18.0)...
+- Downloading plugin for provider "template" (2.1.2)...
+- Downloading plugin for provider "null" (2.1.2)...
+- Downloading plugin for provider "random" (2.1.2)...
+- Downloading plugin for provider "tls" (2.0.1)...
+
+The following providers do not have any version constraints in configuration,
+so the latest version was installed.
+
+To prevent automatic upgrades to new major versions that may contain breaking
+changes, it is recommended to add version = "..." constraints to the
+corresponding provider blocks in configuration, with the constraint strings
+suggested below.
+
+* provider.null: version = "~> 2.1"
+* provider.random: version = "~> 2.1"
+* provider.template: version = "~> 2.1"
+* provider.tls: version = "~> 2.0"
+
+Terraform has been successfully initialized!
+
+You may now begin working with Terraform. Try running "terraform plan" to see
+any changes that are required for your infrastructure. All Terraform commands
+should now work.
+
+If you ever set or change modules or backend configuration for Terraform,
+rerun this command to reinitialize your working directory. If you forget, other
+commands will detect it and remind you to do so if necessary.
+```
+
+The terraform plan command is used to create an execution plan. Terraform performs a refresh, unless explicitly disabled, and then determines what actions are necessary to achieve the desired state specified in the configuration files. This command is a convenient way to check whether the execution plan for a set of changes matches your expectations without making any changes to real resources or to the state. For example, terraform plan might be run before committing a change to version control, to create confidence that it will behave as expected.
+
+Run the command:
+
+```bash
+terraform plan -out=tfplan
+```
+
+Example Output:
 
 ```
+Refreshing Terraform state in-memory prior to plan...
+The refreshed state will be used to calculate this plan, but will not be
+persisted to local or remote state storage.
+
+data.template_file.group3-startup-script: Refreshing state...
+data.template_file.group2-startup-script: Refreshing state...
+data.google_compute_zones.available: Refreshing state...
+data.google_compute_zones.available: Refreshing state...
+data.google_compute_zones.available: Refreshing state...
+data.template_file.group1-startup-script: Refreshing state...
+
+------------------------------------------------------------------------
+
+An execution plan has been generated and is shown below.
+Resource actions are indicated with the following symbols:
+  + create
+  ...
+  ...
+  ...
+  + google_compute_backend_bucket.assets
+  ...
+  + google_compute_network.default
+  ...
+  + google_compute_subnetwork.group1
+  ...
+  + google_compute_subnetwork.group2
+  ...
+  + google_compute_subnetwork.group3
+  ...
+  + google_compute_url_map.https-content
+  ...
+  + google_storage_bucket.assets
+  ...
+  + google_storage_bucket_object.image
+  ...
+  + google_storage_object_acl.image-acl
+  ...
+  + random_id.assets-bucket
+  ...
+  + tls_private_key.example
+  ...
+  + tls_self_signed_cert.example
+  ...
+  + module.gce-lb-https.google_compute_backend_service.default[0]
+  ...
+  + module.gce-lb-https.google_compute_backend_service.default[1]
+  ...
+  + module.gce-lb-https.google_compute_backend_service.default[2]
+  ...
+  + module.gce-lb-https.google_compute_backend_service.default[3]
+  ...
+  + module.gce-lb-https.google_compute_firewall.default-hc[0]
+  ...
+  + module.gce-lb-https.google_compute_firewall.default-hc[1]
+  ...
+  + module.gce-lb-https.google_compute_firewall.default-hc[2]
+  ...
+  + module.gce-lb-https.google_compute_firewall.default-hc[3]
+  ...
+  + module.gce-lb-https.google_compute_global_address.default
+  ...
+  + module.gce-lb-https.google_compute_global_forwarding_rule.http
+  ...
+  + module.gce-lb-https.google_compute_global_forwarding_rule.https
+  ...
+  + module.gce-lb-https.google_compute_http_health_check.default[0]
+  ...
+  + module.gce-lb-https.google_compute_http_health_check.default[1]
+  ...
+  + module.gce-lb-https.google_compute_http_health_check.default[2]
+  ...
+  + module.gce-lb-https.google_compute_http_health_check.default[3]
+  ...
+  + module.gce-lb-https.google_compute_ssl_certificate.default
+  ...
+  + module.gce-lb-https.google_compute_target_http_proxy.default
+  ...
+  + module.gce-lb-https.google_compute_target_https_proxy.default
+  ...
+  + module.mig1.google_compute_firewall.default-ssh
+  ...
+  + module.mig1.google_compute_firewall.mig-health-check
+  ...
+  + module.mig1.google_compute_health_check.mig-health-check
+  ...
+  + module.mig1.google_compute_instance_group_manager.default
+  ...
+  + module.mig1.google_compute_instance_template.default
+  ...
+  + module.mig1.null_resource.dummy_dependency
+  ...
+  + module.mig2.google_compute_firewall.default-ssh
+  ...
+  + module.mig2.google_compute_firewall.mig-health-check
+  ...
+  + module.mig2.google_compute_health_check.mig-health-check
+  ...
+  + module.mig2.google_compute_instance_group_manager.default
+  ...
+  + module.mig2.google_compute_instance_template.default
+  ...
+  + module.mig2.null_resource.dummy_dependency
+  ...
+  + module.mig3.google_compute_firewall.default-ssh
+  ...
+  + module.mig3.google_compute_firewall.mig-health-check
+  ...
+  + module.mig3.google_compute_health_check.mig-health-check
+  ...
+  + module.mig3.google_compute_instance_group_manager.default
+  ...
+  + module.mig3.google_compute_instance_template.default
+  ...
+  + module.mig3.null_resource.dummy_dependency
+  ...
+  ...
+  ...
+  
+Plan: 48 to add, 0 to change, 0 to destroy.
+
+------------------------------------------------------------------------
+
+This plan was saved to: tfplan
+
+To perform exactly these actions, run the following command to apply:
+    terraform apply "tfplan"
+
+```
+
+The `terraform apply` command is used to apply the changes required to reach the desired state of the configuration, or the pre-determined set of actions generated by a terraform plan execution plan.
+
+Run the following command:
+
+```bash
+terraform apply tfplan
+```
+
+Example Output:
+```
+...
+...
+
 Apply complete! Resources: 48 added, 0 changed, 0 destroyed.
 
 Outputs:
@@ -138,19 +340,47 @@ group3_region = us-east1
 load-balancer-ip = 34.98.69.45
 ```
 
+Run this command to get load balancer external IP and build the URL of the load balancer
 ```bash
 echo https://$(terraform output | grep load-balancer-ip | cut -d = -f2 | xargs echo -n)
 ```
 
-Example Output:
+Your IP adress will be different. Example Output:
 ```
 https://34.98.69.45/
 ```
 
-Destroy your resources 
+Verify resources created by Terraform:
+
+* In the Cloud Console left menu navigate to **Network Services > Load Balancing**
+* Wait until you see thee green check mark in the **Backends** column.
+![alt text](./img/global-https-content-lb-image-1.png "Regional Network Load Balancer")
+* Click on **tf-lb-https-content** load balancer and check the details.
+![alt text](./img/global-https-content-lb-image-2.png "Regional Network Load Balancer")
+
+
+Open the link in a new browser tab. It can take several minutes for the forwarding rule to be provisioned. 
+
+You should see a page like this:
+
+![alt text](./img/global-https-content-lb-image-3.png "Regional Network Load Balancer")
+
+You can access the per-region routes directly through the URLs below:
 
 ```bash
-terraform destroy
+echo https://$(terraform output | grep load-balancer-ip | cut -d = -f2 | xargs echo -n)/group1/
+echo https://$(terraform output | grep load-balancer-ip | cut -d = -f2 | xargs echo -n)/group2/
+echo https://$(terraform output | grep load-balancer-ip | cut -d = -f2 | xargs echo -n)/group3/
+
+```
+
+
+When finished, clean up the example by running `terraform destroy` and change back to the parent directory:
+
+```bash
+terraform destroy -auto-approve
+cd ..
+
 ```
 
 Example Output:
